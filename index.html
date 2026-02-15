@@ -4,73 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>إرسال رسالة سرية</title>
-
 <style>
 body{
-margin:0;
-min-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-background: radial-gradient(circle at top,#1a0033,#000);
-font-family:Tahoma;
-color:white;
+margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+background:radial-gradient(circle at top,#1a0033,#000); font-family:Tahoma; color:white;
 }
-
 .card{
-width:100%;
-max-width:420px;
-padding:30px;
-border-radius:25px;
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(15px);
-box-shadow:0 0 40px #7b2fff;
-text-align:center;
+width:95%; max-width:420px; padding:30px; border-radius:25px;
+background:rgba(255,255,255,0.05); backdrop-filter:blur(15px);
+box-shadow:0 0 40px #7b2fff; text-align:center;
 }
-
-h1{
-color:#bb86fc;
-text-shadow:0 0 20px #bb86fc;
-}
-
-input,textarea{
-width:100%;
-padding:12px;
-margin:10px 0;
-border:none;
-border-radius:12px;
-background:#120024;
-color:white;
-outline:none;
-}
-
-textarea{height:100px;resize:none;}
-
-button{
-width:100%;
-padding:14px;
-border:none;
-border-radius:12px;
-background:linear-gradient(45deg,#7b2fff,#00f0ff);
-color:white;
-font-weight:bold;
-cursor:pointer;
-transition:0.3s;
-}
-
-button:hover{
-transform:scale(1.05);
-box-shadow:0 0 20px #00f0ff;
-}
-
+h1{color:#bb86fc; text-shadow:0 0 20px #bb86fc;}
+input,textarea{width:100%; padding:12px; margin:10px 0; border:none; border-radius:12px; background:#120024; color:white; outline:none;}
+textarea{height:90px;resize:none;}
+button{width:100%; padding:14px; border:none; border-radius:12px; background:linear-gradient(45deg,#7b2fff,#00f0ff); color:white; font-weight:bold; cursor:pointer;}
+button:hover{transform:scale(1.05); box-shadow:0 0 20px #00f0ff;}
 #out{display:none;margin-top:15px;}
-#out input{
-background:#000;
-border:1px solid #00f0ff;
-}
+#out input{background:#000;border:1px solid #00f0ff;}
 </style>
 </head>
-
 <body>
 
 <div class="card">
@@ -79,50 +31,29 @@ border:1px solid #00f0ff;
 <input type="text" id="from" placeholder="اسمك">
 <input type="text" id="to" placeholder="اسم الحبيب">
 <textarea id="msg" placeholder="اكتب رسالتك هنا..."></textarea>
-<input type="password" id="pass" placeholder="اكتب كلمة السر">
+<input type="password" id="pass" placeholder="كلمة السر">
 
 <button onclick="makeLink()">توليد الرابط القصير 🚀</button>
 
 <div id="out">
-<input type="text" id="link" readonly>
+<input id="link" readonly>
 <button onclick="copyLink()">نسخ الرابط</button>
 </div>
 
 </div>
 
 <script>
-
-let store = JSON.parse(localStorage.getItem("links")||"{}");
-
-function makeID(){
-return Math.random().toString(36).substring(2,7);
-}
-
+function makeID(){return Math.random().toString(36).substring(2,8);}
 function makeLink(){
-
-let id = makeID();
-
-store[id] = {
-f: from.value,
-t: to.value,
-m: msg.value,
-p: pass.value
-};
-
-localStorage.setItem("links",JSON.stringify(store));
-
-let url = location.href.replace("index.html","view.html")+"?id="+id;
-
-link.value = url;
+let id=makeID();
+let f=from.value.trim(), t=to.value.trim(), m=msg.value.trim(), p=pass.value.trim();
+if(!f||!t||!m||!p){alert("املا كل الحقول 😢"); return;}
+let url=location.href.replace("index.html","message.html")+"?id="+id;
+link.value=url;
 out.style.display="block";
+alert(`✨ انسخ الرابط واكتب بيانات الرسالة في data.json تحت مفتاح "${id}" ✨\nمثال:\n"${id}": {"f":"${f}","t":"${t}","m":"${m}","p":"${p}"}`);
 }
-
-function copyLink(){
-link.select();
-document.execCommand("copy");
-alert("تم النسخ 🔥");
-}
-
+function copyLink(){link.select(); document.execCommand("copy"); alert("تم النسخ 🔥");}
 </script>
 
 </body>
