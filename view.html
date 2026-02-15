@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>افتح الرسالة</title>
+
+<style>
+body{
+margin:0;
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+background:#000014;
+font-family:Tahoma;
+color:white;
+overflow:hidden;
+}
+
+.card{
+position:relative;
+width:100%;
+max-width:450px;
+padding:30px;
+border-radius:25px;
+background:rgba(255,255,255,0.07);
+backdrop-filter:blur(20px);
+box-shadow:0 0 50px #00f0ff;
+text-align:center;
+z-index:2;
+}
+
+h2{
+color:#00f0ff;
+text-shadow:0 0 20px #00f0ff;
+}
+
+input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:none;
+border-radius:12px;
+background:#000;
+color:white;
+}
+
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:linear-gradient(45deg,#ff0080,#00f0ff);
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+#message{display:none;font-size:18px;line-height:1.8;}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:1;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="fire"></canvas>
+
+<div class="card">
+<h2>🔐 ادخل كلمة السر</h2>
+
+<input type="password" id="passInput" placeholder="كلمة السر">
+<button onclick="check()">فتح الرسالة</button>
+
+<div id="message"></div>
+</div>
+
+<audio id="boom" src="fire.mp3"></audio>
+
+<script>
+
+let params = new URLSearchParams(location.search);
+let id = params.get("id");
+
+let store = JSON.parse(localStorage.getItem("links")||"{}");
+let data = store[id];
+
+function check(){
+if(!data) return alert("الرابط غير موجود");
+
+if(passInput.value === data.p){
+
+document.querySelector("h2").style.display="none";
+passInput.style.display="none";
+document.querySelector("button").style.display="none";
+
+message.style.display="block";
+message.innerHTML =
+"💌 من "+data.f+" إلى "+data.t+"<br><br>"+data.m;
+
+startFire();
+boom.play();
+
+}else{
+alert("كلمة السر غلط ❌");
+}
+}
+
+/* 🔥 ألعاب نارية كثيفة */
+
+let canvas=document.getElementById("fire");
+let ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+let particles=[];
+
+function startFire(){
+setInterval(()=>{
+for(let i=0;i<120;i++){
+particles.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height/2,
+dx:(Math.random()-0.5)*6,
+dy:(Math.random()-0.5)*6,
+life:100
+});
+}
+},800);
+
+animate();
+}
+
+function animate(){
+requestAnimationFrame(animate);
+ctx.fillStyle="rgba(0,0,20,0.2)";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+particles.forEach((p,i)=>{
+ctx.fillStyle="hsl("+Math.random()*360+",100%,60%)";
+ctx.beginPath();
+ctx.arc(p.x,p.y,3,0,Math.PI*2);
+ctx.fill();
+p.x+=p.dx;
+p.y+=p.dy;
+p.life--;
+if(p.life<=0) particles.splice(i,1);
+});
+}
+
+</script>
+
+</body>
+</html>
