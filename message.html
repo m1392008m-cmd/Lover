@@ -3,77 +3,164 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>افتح الرسالة</title>
+<title>مفاجأتك وصلت 🎁</title>
+
 <style>
-body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:#000014;font-family:Tahoma;color:white;overflow:hidden;text-align:center;}
-.card{position:relative;width:95%;max-width:450px;padding:30px;border-radius:25px;background:rgba(255,255,255,0.07);backdrop-filter:blur(15px);box-shadow:0 0 50px #00f0ff;text-align:center;z-index:2;}
-h2{color:#00f0ff;text-shadow:0 0 20px #00f0ff;}
-input{width:100%;padding:12px;margin:10px 0;border:none;border-radius:12px;background:#000;color:white;}
-button{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(45deg,#ff0080,#00f0ff);color:white;font-weight:bold;cursor:pointer;}
-#message{display:none;font-size:18px;line-height:1.8;}
-canvas{position:fixed;top:0;left:0;z-index:1;}
+body {
+    margin: 0; padding: 0; overflow-x: hidden;
+    background: linear-gradient(-45deg, #0077b6, #ffffff, #ffb7c5, #ac7373);
+    background-size: 400% 400%; animation: bg 15s infinite;
+    font-family: 'Segoe UI', sans-serif; text-align: center;
+}
+@keyframes bg { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+#startScreen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, #ffffff, #e0f2fe);
+    z-index: 1000;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding:20px;
+}
+
+.box {
+    background:white;
+    padding:30px;
+    border-radius:25px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.2);
+    width:100%;
+    max-width:400px;
+}
+
+.names-box {
+    font-size:22px;
+    font-weight:bold;
+    background:#f0f8ff;
+    padding:15px;
+    border-radius:15px;
+    margin-bottom:20px;
+}
+
+input {
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid #ccc;
+    margin-bottom:15px;
+}
+
+.big-btn {
+    width:100%;
+    padding:18px;
+    border:none;
+    border-radius:50px;
+    background:#0077b6;
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.content { display:none; padding:20px; max-width:500px; margin:auto; }
+#userImage { width:100%; border-radius:20px; display:none; margin:15px 0; border:5px solid white; box-shadow:0 5px 15px rgba(0,0,0,0.2); }
+#typewriter { font-size:22px; font-weight:bold; color:#333; background:rgba(255,255,255,0.6); padding:15px; border-radius:15px; margin:15px 0; }
+iframe, video { width:100%; border-radius:15px; margin-top:10px; }
+.particle { position:fixed; bottom:-50px; animation:fly 6s linear infinite; pointer-events:none; }
+@keyframes fly { to { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
 </style>
 </head>
 <body>
 
-<canvas id="fire"></canvas>
-
-<div class="card">
-<h2>🔐 ادخل كلمة السر</h2>
-<input type="password" id="passInput" placeholder="كلمة السر">
-<button onclick="check()">فتح الرسالة</button>
-<div id="message"></div>
+<div id="startScreen">
+    <div class="box">
+        <div class="names-box" id="namesBox"></div>
+        <input type="password" id="enteredPass" placeholder="اكتب كلمة سر حبنا يا قلبي 🔐">
+        <button class="big-btn" onclick="checkPassword()">افتح العظمة يا قمري 💙</button>
+    </div>
 </div>
 
-<audio id="boom" src="fire.mp3"></audio>
+<div class="content" id="mainContent">
+    <h2 id="toHeader" style="color:#0077b6;"></h2>
+    <img id="userImage" src="">
+    <div id="videoContainer"></div>
+    <div id="typewriter"></div>
+    <div id="audioContainer"></div>
+    <a href="index.html" style="color:#ac7373;font-weight:bold;text-decoration:none;display:block;margin-top:20px;">رد المفاجأة بمثلها 💌</a>
+</div>
 
 <script>
-const urlParams=new URLSearchParams(location.search);
-const id=urlParams.get("id");
+const params = new URLSearchParams(window.location.search);
+const correctPass = decodeURIComponent(params.get("p") || "");
 
-let data;
+document.getElementById('namesBox').innerText =
+`${params.get('from') || 'محبك'} ❤️ ${params.get('to') || 'حبيبي'}`;
 
-fetch('data.json')
-.then(r=>r.json())
-.then(j=>{data=j[id];});
+document.getElementById('toHeader').innerText =
+`إلى: ${params.get('to') || 'حبيبي'} ✨`;
 
-function check(){
-if(!data){alert("الرابط غير موجود ❌"); return;}
-if(passInput.value===data.p){
-document.querySelector("h2").style.display="none";
-passInput.style.display="none";
-document.querySelector("button").style.display="none";
-message.style.display="block";
-message.innerHTML="💌 من "+data.f+" إلى "+data.t+"<br><br>"+data.m;
-boom.play();
-startFire();
-}else{alert("كلمة السر غلط ❌");}
+function checkPassword(){
+    const entered = document.getElementById("enteredPass").value;
+
+    if(entered === correctPass){
+        document.getElementById('startScreen').style.display='none';
+        document.getElementById('mainContent').style.display='block';
+        startShow();
+    } else {
+        alert("كلمة السر غلط يا قمري 😢");
+    }
 }
 
-/* ألعاب نارية كثيفة */
-let canvas=document.getElementById("fire");
-let ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-let particles=[];
-function startFire(){
-setInterval(()=>{for(let i=0;i<120;i++){particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height/2,dx:(Math.random()-0.5)*6,dy:(Math.random()-0.5)*6,life:100});}},800);
-animate();
+function startShow(){
+
+    const img = params.get('i');
+    if(img && img !== "undefined"){
+        const imgTag = document.getElementById('userImage');
+        imgTag.src = decodeURIComponent(img);
+        imgTag.style.display='block';
+    }
+
+    const audio = params.get('a');
+    if(audio){
+        document.getElementById('audioContainer').innerHTML =
+        `<audio id="m" autoplay loop><source src="${decodeURIComponent(audio)}"></audio>`;
+        document.getElementById('m').play().catch(()=>{});
+    }
+
+    const video = params.get('v');
+    if(video){
+        let vArea = document.getElementById('videoContainer');
+        let url = decodeURIComponent(video);
+        if(url.includes('youtube') || url.includes('youtu.be')){
+            let id = url.split('v=')[1]?.split('&')[0] || url.split('/').pop();
+            vArea.innerHTML =
+            `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1"
+            frameborder="0" allow="autoplay" style="height:250px;"></iframe>`;
+        } else {
+            vArea.innerHTML =
+            `<video controls autoplay style="max-height:250px;">
+            <source src="${url}"></video>`;
+        }
+    }
+
+    typeWriter(decodeURIComponent(params.get('m') || ""), 0);
+    setInterval(createParticle, 300);
 }
-function animate(){
-requestAnimationFrame(animate);
-ctx.fillStyle="rgba(0,0,20,0.2)";
-ctx.fillRect(0,0,canvas.width,canvas.height);
-particles.forEach((p,i)=>{
-ctx.fillStyle="hsl("+Math.random()*360+",100%,60%)";
-ctx.beginPath();
-ctx.arc(p.x,p.y,3,0,Math.PI*2);
-ctx.fill();
-p.x+=p.dx;
-p.y+=p.dy;
-p.life--;
-if(p.life<=0) particles.splice(i,1);
-});
+
+function typeWriter(text, i){
+    if(i < text.length){
+        document.getElementById("typewriter").innerHTML += text.charAt(i);
+        setTimeout(()=> typeWriter(text, i+1), 60);
+    }
+}
+
+function createParticle(){
+    const p = document.createElement('div');
+    p.className='particle';
+    p.innerText=['💙','✨','💎'][Math.floor(Math.random()*3)];
+    p.style.left=Math.random()*100+'vw';
+    p.style.fontSize='25px';
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),6000);
 }
 </script>
 

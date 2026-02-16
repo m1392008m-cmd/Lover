@@ -1,60 +1,119 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>إرسال رسالة سرية</title>
-<style>
-body{
-margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
-background:radial-gradient(circle at top,#1a0033,#000); font-family:Tahoma; color:white;
-}
-.card{
-width:95%; max-width:420px; padding:30px; border-radius:25px;
-background:rgba(255,255,255,0.05); backdrop-filter:blur(15px);
-box-shadow:0 0 40px #7b2fff; text-align:center;
-}
-h1{color:#bb86fc; text-shadow:0 0 20px #bb86fc;}
-input,textarea{width:100%; padding:12px; margin:10px 0; border:none; border-radius:12px; background:#120024; color:white; outline:none;}
-textarea{height:90px;resize:none;}
-button{width:100%; padding:14px; border:none; border-radius:12px; background:linear-gradient(45deg,#7b2fff,#00f0ff); color:white; font-weight:bold; cursor:pointer;}
-button:hover{transform:scale(1.05); box-shadow:0 0 20px #00f0ff;}
-#out{display:none;margin-top:15px;}
-#out input{background:#000;border:1px solid #00f0ff;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صانع المفاجآت الراقي 💎</title>
+    <style>
+        :root { --blue: #0077b6; --pink: #ffb7c5; --kashmir: #ac7373; }
+        body {
+            background: linear-gradient(135deg, #0077b6, #ffffff, #ffb7c5, #ac7373);
+            background-size: 400% 400%; animation: bg 12s infinite;
+            font-family: 'Segoe UI', Tahoma, sans-serif; display: flex;
+            justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 15px;
+        }
+        @keyframes bg { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        .card {
+            background: rgba(255, 255, 255, 0.9); padding: 25px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center;
+        }
+        input, textarea {
+            width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; 
+            border: 1px solid #ddd; font-size: 16px; box-sizing: border-box;
+        }
+        .upload-hint { font-size: 13px; color: var(--kashmir); display: block; text-align: right; margin-top: 10px; font-weight: bold; }
+        .file-input { background: white; border: 1px dashed var(--blue); cursor: pointer; padding: 8px; }
+        button {
+            background: var(--blue); color: white; border: none; padding: 15px;
+            border-radius: 50px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s;
+        }
+        button:disabled { background: #ccc; }
+        #resultArea { margin-top: 20px; display: none; background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--pink); }
+        .link-display { word-break: break-all; color: var(--blue); font-size: 12px; font-weight: bold; display: block; margin: 10px 0; }
+    </style>
 </head>
 <body>
+    <div class="card">
+        <h2>💎 صانع المفاجآت</h2>
+        <input type="text" id="sender" placeholder="اسمك">
+        <input type="text" id="receiver" placeholder="اسم المستلم">
+        <textarea id="msg" placeholder="رسالتك..." rows="3"></textarea>
 
-<div class="card">
-<h1>🔐 رسالة بكلمة سر</h1>
+        <!-- كلمة السر -->
+        <input type="text" id="lovePass" placeholder="اكتب كلمة سر حبنا يا قلبي 🔐">
+        
+        <span class="upload-hint">🖼️ ارفع صورة من هاتفك:</span>
+        <input type="file" id="photoFile" accept="image/*" class="file-input">
+        
+        <input type="text" id="videoUrl" placeholder="رابط يوتيوب">
+        <input type="text" id="audioUrl" placeholder="رابط موسيقى">
+        
+        <button id="genBtn" onclick="generateLink()">توليد الرابط الملكي ✨</button>
 
-<input type="text" id="from" placeholder="اسمك">
-<input type="text" id="to" placeholder="اسم الحبيب">
-<textarea id="msg" placeholder="اكتب رسالتك هنا..."></textarea>
-<input type="password" id="pass" placeholder="كلمة السر">
-
-<button onclick="makeLink()">توليد الرابط القصير 🚀</button>
-
-<div id="out">
-<input id="link" readonly>
-<button onclick="copyLink()">نسخ الرابط</button>
-</div>
-
-</div>
+        <div id="resultArea">
+            <span class="link-display" id="finalLink"></span>
+            <button onclick="copyLink()" style="background:#2ecc71; margin-bottom:5px;">نسخ الرابط 📋</button>
+            <button onclick="shareWhatsapp()" style="background:#25d366;">واتساب ✅</button>
+        </div>
+    </div>
 
 <script>
-function makeID(){return Math.random().toString(36).substring(2,8);}
-function makeLink(){
-let id=makeID();
-let f=from.value.trim(), t=to.value.trim(), m=msg.value.trim(), p=pass.value.trim();
-if(!f||!t||!m||!p){alert("املا كل الحقول 😢"); return;}
-let url=location.href.replace("index.html","message.html")+"?id="+id;
-link.value=url;
-out.style.display="block";
-alert(`✨ انسخ الرابط واكتب بيانات الرسالة في data.json تحت مفتاح "${id}" ✨\nمثال:\n"${id}": {"f":"${f}","t":"${t}","m":"${m}","p":"${p}"}`);
-}
-function copyLink(){link.select(); document.execCommand("copy"); alert("تم النسخ 🔥");}
-</script>
+const API_KEY = 'c3e9ac689b48477e208986f55fe0933b';
 
+async function generateLink() {
+    const btn = document.getElementById('genBtn');
+    const photoInput = document.getElementById('photoFile');
+    btn.disabled = true;
+    btn.innerText = "جاري معالجة المفاجأة... ⏳";
+
+    try {
+        let imgUrl = "";
+        if (photoInput.files.length > 0) {
+            const formData = new FormData();
+            formData.append('image', photoInput.files[0]);
+            const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await uploadRes.json();
+            imgUrl = data.data.url;
+        }
+
+        const sender = encodeURIComponent(document.getElementById('sender').value);
+        const receiver = encodeURIComponent(document.getElementById('receiver').value);
+        const msg = encodeURIComponent(document.getElementById('msg').value);
+        const pass = encodeURIComponent(document.getElementById('lovePass').value);
+        const video = encodeURIComponent(document.getElementById('videoUrl').value);
+        const audio = encodeURIComponent(document.getElementById('audioUrl').value);
+        const img = encodeURIComponent(imgUrl);
+
+        let currentUrl = window.location.href;
+        let baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/')) + '/message.html';
+        
+        const longLink = `${baseUrl}?from=${sender}&to=${receiver}&m=${msg}&v=${video}&a=${audio}&i=${img}&p=${pass}`;
+
+        const shortRes = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longLink)}`);
+        const finalLink = shortRes.ok ? await shortRes.text() : longLink;
+
+        document.getElementById('finalLink').innerText = finalLink;
+        document.getElementById('resultArea').style.display = 'block';
+    } catch (e) {
+        alert("حدث خطأ، تأكد من جودة الصورة أو الإنترنت.");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "توليد الرابط الملكي ✨";
+    }
+}
+
+function copyLink() {
+    navigator.clipboard.writeText(document.getElementById('finalLink').innerText);
+    alert("تم النسخ! 💖");
+}
+
+function shareWhatsapp() {
+    const link = document.getElementById('finalLink').innerText;
+    window.open(`https://wa.me/?text=${encodeURIComponent("مفاجأة لك: " + link)}`);
+}
+</script>
 </body>
 </html>
